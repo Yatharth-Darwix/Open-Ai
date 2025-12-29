@@ -1,0 +1,22 @@
+# General
+.DS_Store
+*.log
+
+# Backend (Python)
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+backend/ledger.json
+
+# Frontend (Node)
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/npm-debug.log
+frontend/yarn-error.log
+
+# IDEs
+.vscode/
+.idea/

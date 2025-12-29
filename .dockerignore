@@ -1,0 +1,24 @@
+# Local development files
+node_modules/
+venv/
+.env
+.git
+.gitignore
+
+# React build artifacts
+frontend/build/
+frontend/node_modules/
+
+# Python build artifacts
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+backend/ledger.json
+
+# Misc
+.DS_Store
+*.log
+env.yaml
+deploy.sh
