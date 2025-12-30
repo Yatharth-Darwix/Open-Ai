@@ -10,7 +10,11 @@ IMAGE_URL="us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$SERVI
 # Function to read variables from .env
 load_env() {
   if [ -f backend/.env ]; then
-    export $(grep -v '^#' backend/.env | xargs)
+    echo "Sourcing .env file..."
+    # Safer way to load env vars including those with spaces
+    set -a
+    source backend/.env
+    set +a
   else
     echo "Error: backend/.env file not found!"
     exit 1
@@ -40,7 +44,7 @@ SMTP_SERVER: "$SMTP_SERVER"
 SMTP_PORT: "$SMTP_PORT"
 ALERT_THRESHOLD: "$ALERT_THRESHOLD"
 ALERT_RECIPIENT_EMAIL: "$ALERT_RECIPIENT_EMAIL"
-INITIAL_TOTAL_DEPOSITED: "0.0"
+INITIAL_TOTAL_DEPOSITED: "16.00"
 EOF
 
 # 3. Build and Deploy

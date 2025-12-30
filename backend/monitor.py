@@ -39,9 +39,11 @@ class OpenAIMonitor:
     def _ensure_ledger(self):
         if not os.path.exists(self.ledger_file):
             initial_deposit = float(os.getenv("INITIAL_TOTAL_DEPOSITED", 0.0))
+            # Default to 90 days ago to ensure history is populated on fresh deploy
+            ninety_days_ago = int(time.time()) - (90 * 86400)
             initial_state = {
                 "total_deposited": initial_deposit,
-                "start_date": int(time.time()), 
+                "start_date": ninety_days_ago, 
                 "historical_spend": 0.0,
                 "monthly_history": {},
                 "last_alert_sent": 0
@@ -61,9 +63,11 @@ class OpenAIMonitor:
                 return data
         except Exception as e:
             logger.error(f"Error loading ledger: {e}")
+            # Default to 90 days ago to rebuild history on fresh start
+            ninety_days_ago = int(time.time()) - (90 * 86400)
             return {
-                "total_deposited": 0.0, 
-                "start_date": int(time.time()), 
+                "total_deposited": float(os.getenv("INITIAL_TOTAL_DEPOSITED", 0.0)), 
+                "start_date": ninety_days_ago, 
                 "historical_spend": 0.0, 
                 "monthly_history": {},
                 "last_alert_sent": 0
@@ -276,10 +280,16 @@ class OpenAIMonitor:
         logger.info(f"Current Balance Check: ${balance}. Threshold: ${self.threshold}")
         if balance < self.threshold:
             last_sent = ledger.get("last_alert_sent", 0)
-            if (time.time() - last_sent) > 1800:
-                self.send_email_alert(balance)
-                ledger["last_alert_sent"] = time.time()
-                self._save_ledger(ledger)
+            # Alert every 2 hours (7200 seconds)
+            if (time.time() - last_sent) > 7200:
+                # Quiet hours check (9 PM to 6 AM)
+                current_hour = datetime.now().hour
+                if 6 <= current_hour < 21:
+                    self.send_email_alert(balance)
+                    ledger["last_alert_sent"] = time.time()
+                    self._save_ledger(ledger)
+                else:
+                    logger.info("Skipping alert due to quiet hours (9PM - 6AM)")
         return status
 
     def send_email_alert(self, balance):

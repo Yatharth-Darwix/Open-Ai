@@ -15,7 +15,6 @@ frontend/node_modules/
 *.pyo
 *.pyd
 .Python
-backend/ledger.json
 
 # Misc
 .DS_Store
